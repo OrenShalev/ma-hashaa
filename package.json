@@ -1,0 +1,25 @@
+{
+  "name": "ma-hashaa",
+  "version": "1.0.0",
+  "description": "Returns the current time in words",
+  "type": "module",
+  "main": "./dist/index.js",
+  "bin": {
+    "ma-hashaa": "./dist/bin.js"
+  },
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "build": "tsc",
+    "prepublishOnly": "npm run build",
+    "start": "tsx src/bin.ts",
+    "dev": "tsx watch src/bin.ts"
+  },
+  "author": "Oren Shalev <shalev.oren@gmail.com>",
+  "license": "MIT",
+  "devDependencies": {
+    "typescript": "^5.0.0",
+    "tsx": "^4.0.0"
+  }
+}
