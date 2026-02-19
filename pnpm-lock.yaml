@@ -8,6 +8,9 @@ importers:
 
   .:
     devDependencies:
+      '@types/node':
+        specifier: ^25.3.0
+        version: 25.3.0
       tsx:
         specifier: ^4.0.0
         version: 4.21.0
@@ -173,6 +176,9 @@ packages:
     cpu: [x64]
     os: [win32]
 
+  '@types/node@25.3.0':
+    resolution: {integrity: sha1-dJsb1AWOUbcuIr1B6eq269AYBHA=}
+
   esbuild@0.27.3:
     resolution: {integrity: sha1-WFnKjnCjr5VrJolc5JVNfnO9J6g=}
     engines: {node: '>=18'}
@@ -198,6 +204,9 @@ packages:
     resolution: {integrity: sha1-W09Z4VMQqxeiFvXWz1PuR27eZw8=}
     engines: {node: '>=14.17'}
     hasBin: true
+
+  undici-types@7.18.2:
+    resolution: {integrity: sha1-KTV6iee3ykrvO/D9P9DNc4hCKek=}
 
 snapshots:
 
@@ -279,6 +288,10 @@ snapshots:
   '@esbuild/win32-x64@0.27.3':
     optional: true
 
+  '@types/node@25.3.0':
+    dependencies:
+      undici-types: 7.18.2
+
   esbuild@0.27.3:
     optionalDependencies:
       '@esbuild/aix-ppc64': 0.27.3
@@ -325,3 +338,5 @@ snapshots:
       fsevents: 2.3.3
 
   typescript@5.9.3: {}
+
+  undici-types@7.18.2: {}

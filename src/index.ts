@@ -2,7 +2,16 @@
  * Returns the current time in words.
  * Placeholder implementation.
  */
-export default function maHashaa(): string {
+interface TimeInput {
+  h?: number;
+  m?: number;
+}
+
+export default function maHashaa({ h, m }: TimeInput = {}): string {
   const now = new Date();
-  return `The time is ${now.toLocaleTimeString()} (Unix: ${Date.now()})`;
+  const hours = h ?? now.getHours();
+  const minutes = m ?? now.getMinutes();
+  
+  // For now, still returning a simple string, but using the inputs
+  return `The time is ${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}`;
 }

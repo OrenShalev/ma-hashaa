@@ -14,12 +14,15 @@
     "build": "tsc",
     "prepublishOnly": "npm run build",
     "start": "tsx src/bin.ts",
-    "dev": "tsx watch src/bin.ts"
+    "dev": "tsx watch src/bin.ts",
+    "test": "tsx src/test.ts",
+    "test:watch": "tsx watch src/test.ts"
   },
   "author": "Oren Shalev <shalev.oren@gmail.com>",
   "license": "MIT",
   "devDependencies": {
-    "typescript": "^5.0.0",
-    "tsx": "^4.0.0"
+    "@types/node": "^25.3.0",
+    "tsx": "^4.0.0",
+    "typescript": "^5.0.0"
   }
 }
