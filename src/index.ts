@@ -1,7 +1,7 @@
 /**
  * Returns the current time in words.
  */
-export default function maHashaa(timeStr?: string): string {
+export default function maHashaa(timeStr?: string, useNikud: boolean = false): string {
   let hours: number;
   let minutes: number;
 
@@ -21,13 +21,13 @@ export default function maHashaa(timeStr?: string): string {
   const usesRelative = !!TO_WORDS[remaining];
 
   // Target midnight logic: 
-  // If we are in hour 0 (midnight) and NOT using "to" (relative), we are talking about חצות.
-  // If we are in hour 23 and USING "to" (relative), we are talking about חצות.
+  // If we are in hour 0 (midnight) and NOT using "to" (relative), we are talking about חֲצוֹת.
+  // If we are in hour 23 and USING "to" (relative), we are talking about חֲצוֹת.
   const isTargetMidnight = (hours === 0 && !usesRelative) || (hours === 23 && usesRelative);
 
   const suffix = isTargetMidnight ? "" : getDaySuffix(hours);
-  const hourName = (hours === 0 && !usesRelative) ? "חצות" : FEMININE_HOURS[displayHour];
-  const nextHourName = (hours === 23 && usesRelative) ? "חצות" : FEMININE_HOURS[nextHour];
+  const hourName = (hours === 0 && !usesRelative) ? "חֲצוֹת" : FEMININE_HOURS[displayHour];
+  const nextHourName = (hours === 23 && usesRelative) ? "חֲצוֹת" : FEMININE_HOURS[nextHour];
 
   let result = "";
 
@@ -41,84 +41,89 @@ export default function maHashaa(timeStr?: string): string {
   }
   // Case 3: Spoken "And a quarter" / "And a half"
   else if (minutes === 15) {
-    result = `${hourName} ורבע`;
+    result = `${hourName} וָרֶבַע`;
   }
   else if (minutes === 30) {
-    result = `${hourName} וחצי`;
+    result = `${hourName} וְחֵצִי`;
   }
   // Case 4: Digital (everything else)
   // For minutes 1-19, it's more natural to add the "ו" (vav) connector.
   // Many speakers don't add "ו" for 20+ except for multiples of 5 logic or specific flows.
   else if (minutes < 20) {
-    result = `${hourName} ו${getMinutesDigital(minutes)}`;
+    result = `${hourName} וְ${getMinutesDigital(minutes)}`;
   }
   else {
     result = `${hourName} ${getMinutesDigital(minutes)}`;
   }
 
-  return result + suffix;
+  const finalResult = result + suffix;
+  return useNikud ? finalResult : stripNikud(finalResult);
+}
+
+function stripNikud(text: string): string {
+  return text.replace(/[\u0591-\u05C7]/g, "");
 }
 
 function getDaySuffix(h: number): string {
-  if (h >= 5 && h < 12) return " בבוקר";
-  if (h >= 12 && h < 16) return " בצהריים";
-  if (h >= 16 && h < 18) return " אחר הצהריים";
-  if (h >= 18 && h < 22) return " בערב";
-  return " בלילה";
+  if (h >= 5 && h < 12) return " בַּבּוֹקֶר";
+  if (h >= 12 && h < 16) return " בַּצָּהֳרַיִים";
+  if (h >= 16 && h < 18) return " אַחַר הַצָּהֳרַיִים";
+  if (h >= 18 && h < 22) return " בָּעֶרֶב";
+  return " בַּלַּיְלָה";
 }
 
 function getMinutesDigital(m: number): string {
   // Case A: Multiples of 5 (tend to use masculine in certain contexts like "וחמישה")
   if (m % 5 === 0) {
-    if (m === 5) return "חמישה";
-    if (m === 10) return "עשרה";
-    if (m === 20) return "עשרים";
-    if (m === 30) return "שלושים";
+    if (m === 5) return "חֲמִישָּׁה";
+    if (m === 10) return "עֲשָׂרָה";
+    if (m === 20) return "עֶשְׂרִים";
+    if (m === 30) return "שְׁלוֹשִׁים";
     const ten = Math.floor(m / 10) * 10;
     const unit = m % 10;
     if (unit === 0) return TENS[ten];
-    return `${TENS[ten]} וחמישה`; // e.g., 25 -> "עשרים וחמישה"
+    return `${TENS[ten]} וַחֲמִישָּׁה`; // e.g., 25 -> "עשרים וחמישה"
   }
 
   // Case B: Not multiples of 5 (feminine)
-  if (m === 1) return "דקה אחת";
-  if (m === 2) return "שתי דקות";
+  if (m === 1) return "דַּקָּה אַחַת";
+  if (m === 2) return "שְׁתֵּי דַּקּוֹת";
 
   let words = "";
   if (m < 12) words = FEMININE_HOURS[m];
-  else if (m < 20) words = FEMININE_HOURS[m - 10] + " עשרה";
+  else if (m < 20) words = FEMININE_HOURS[m - 10] + " עֶשְׂרֵה";
   else {
     const ten = Math.floor(m / 10) * 10;
     const unit = m % 10;
     if (unit === 0) words = TENS[ten];
-    else words = TENS[ten] + " ו" + FEMININE_HOURS[unit];
+    else words = TENS[ten] + " וְ" + FEMININE_HOURS[unit];
   }
 
   // "One word" rule: if the result is one word, add " דקות"
   // Note: Hebrew "ואחת" is considered part of the number phrase, so we check for spaces.
   if (!words.includes(" ")) {
-    words += " דקות";
+    words += " דַּקּוֹת";
   }
   return words;
 }
 
 const TO_WORDS: Record<number, string> = {
-  20: "עשרים ל",
-  15: "רבע ל",
-  10: "עשרה ל",
-  5: "חמישה ל",
-  4: "ארבע ל",
-  3: "שלוש ל",
-  2: "שתיים ל",
-  1: "אחת ל"
+  20: "עֶשְׂרִים לְ",
+  15: "רֶבַע לְ",
+  10: "עֲשָׂרָה לְ",
+  5: "חֲמִישָּׁה לְ",
+  4: "אַרְבַּע לְ",
+  3: "שָׁלוֹשׁ לְ",
+  2: "שְׁתַּיִים לְ",
+  1: "אַחַת לְ"
 };
 
 const TENS: Record<number, string> = {
-  10: "עשר", 20: "עשרים", 30: "שלושים", 40: "ארבעים", 50: "חמישים"
+  10: "עֶשֶׂר", 20: "עֶשְׂרִים", 30: "שְׁלוֹשִׁים", 40: "אַרְבָּעִים", 50: "חֲמִישִּׁים"
 };
 
 const FEMININE_HOURS: Record<number, string> = {
-  1: "אחת", 2: "שתיים", 3: "שלוש", 4: "ארבע", 5: "חמש",
-  6: "שש", 7: "שבע", 8: "שמונה", 9: "תשע", 10: "עשר",
-  11: "אחת עשרה", 12: "שתים עשרה"
+  1: "אַחַת", 2: "שְׁתַּיִים", 3: "שָׁלוֹשׁ", 4: "אַרְבַּע", 5: "חָמֵשׁ",
+  6: "שֵׁשׁ", 7: "שֶׁבַע", 8: "שְׁמוֹנֶה", 9: "תֵּשַׁע", 10: "עֶשֶׂר",
+  11: "אַחַת עֶשְׂרֵה", 12: "שְׁתֵּים עֶשְׂרֵה"
 };

@@ -1,6 +1,10 @@
 import assert from 'node:assert';
 import maHashaa from './index.js';
 
+function reverseHebrew(text: string): string {
+  return text.split('').reverse().join('').replace(/([\u0591-\u05C7]+)(.)/g, '$2$1');
+}
+
 console.log('Running tests...');
 
 const cases = [
@@ -20,6 +24,7 @@ const cases = [
   { input: '19:45', expected: 'רבע לשמונה בערב' },
   { input: '23:50', expected: 'עשרה לחצות' },
   { input: '03:10', expected: 'שלוש ועשרה בלילה' },
+  { input: '03:08', expected: 'שלוש ושמונה דקות בלילה' },
 ];
 
 const startTime = performance.now();
@@ -27,9 +32,9 @@ let failures = 0;
 
 for (const { input, expected } of cases) {
   const actual = maHashaa(input);
-  // next two lines are so the terminal shows Hebrew like we want (techincally wrong)
-  const visualActual = actual.split('').reverse().join('');
-  const visualExpected = expected.split('').reverse().join('');
+  // use reverseHebrew so the terminal shows Hebrew correctly
+  const visualActual = reverseHebrew(actual);
+  const visualExpected = reverseHebrew(expected);
   
   if (actual === expected) {
     console.log(`✅ ${input} -> "${visualActual}"`);
@@ -37,6 +42,18 @@ for (const { input, expected } of cases) {
     console.log(`❌ ${input} -> "${visualActual}" (expected "${visualExpected}")`);
     failures++;
   }
+}
+
+// Final verification for Nikud
+console.log('\nChecking Nikud support...');
+const nikudResult = maHashaa('03:08', true);
+const expectedNikud = 'שָׁלוֹשׁ וְשְׁמוֹנֶה דַּקּוֹת בַּלַּיְלָה';
+
+if (nikudResult.normalize('NFC') === expectedNikud.normalize('NFC')) {
+  console.log(`✅ Nikud support works: "${reverseHebrew(nikudResult)}"`);
+} else {
+  console.log(`❌ Nikud support failed: "${reverseHebrew(nikudResult)}" (expected "${reverseHebrew(expectedNikud)}")`);
+  failures++;
 }
 
 const duration = (performance.now() - startTime).toFixed(2);
