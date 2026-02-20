@@ -1,4 +1,5 @@
 #!/usr/bin/env node
 import maHashaa from './index.js';
 
-console.log(maHashaa());
+const input = process.argv[2];
+console.log(maHashaa(input).split('').reverse().join(''));
