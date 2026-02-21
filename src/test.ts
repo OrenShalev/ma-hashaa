@@ -1,66 +1,60 @@
 import assert from 'node:assert';
-import maHashaa from './index.js';
-
-function reverseHebrew(text: string): string {
-  return text.split('').reverse().join('').replace(/([\u0591-\u05C7]+)(.)/g, '$2$1');
-}
+import maHashaa, { reverseHebrew } from './index.js';
 
 console.log('Running tests...');
 
 const cases = [
-  { input: '00:00', expected: 'חצות' },
-  { input: '00:03', expected: 'חצות ושלוש דקות' },
-  { input: '10:00', expected: 'עשר בבוקר' },
-  { input: '10:05', expected: 'עשר וחמישה בבוקר' },
-  { input: '10:07', expected: 'עשר ושבע דקות בבוקר' },
-  { input: '10:10', expected: 'עשר ועשרה בבוקר' },
-  { input: '10:15', expected: 'עשר ורבע בבוקר' },
-  { input: '10:30', expected: 'עשר וחצי בבוקר' },
-  { input: '10:39', expected: 'עשר שלושים ותשע בבוקר' },
-  { input: '10:40', expected: 'עשרים לאחת עשרה בבוקר' },
-  { input: '13:00', expected: 'אחת בצהריים' },
-  { input: '14:15', expected: 'שתיים ורבע בצהריים' },
-  { input: '17:30', expected: 'חמש וחצי אחר הצהריים' },
-  { input: '19:45', expected: 'רבע לשמונה בערב' },
-  { input: '23:50', expected: 'עשרה לחצות' },
-  { input: '03:10', expected: 'שלוש ועשרה בלילה' },
-  { input: '03:08', expected: 'שלוש ושמונה דקות בלילה' },
+  { input: '00:00', useNikud: true, expected: 'חֲצוֹת' },
+  { input: '00:03', useNikud: false, expected: 'חצות ושלוש דקות' },
+  { input: '10:00', useNikud: true, expected: 'עֶשֶׂר בַּבּוֹקֶר' },
+  { input: '10:05', useNikud: false, expected: 'עשר וחמישה בבוקר' },
+  { input: '10:07', useNikud: false, expected: 'עשר ושבע דקות בבוקר' },
+  { input: '10:10', useNikud: true, expected: 'עֶשֶׂר וַעֲשָׂרָה בַּבּוֹקֶר' },
+  { input: '10:15', useNikud: false, expected: 'עשר ורבע בבוקר' },
+  { input: '10:30', useNikud: true, expected: 'עֶשֶׂר וְחֵצִי בַּבּוֹקֶר' },
+  { input: '10:39', useNikud: false, expected: 'עשר שלושים ותשע בבוקר' },
+  { input: '10:40', useNikud: false, expected: 'עשרים לאחת עשרה בבוקר' },
+  { input: '13:00', useNikud: true, expected: 'אַחַת בַּצָּהֳרַיִים' },
+  { input: '14:15', useNikud: false, expected: 'שתיים ורבע בצהריים' },
+  { input: '17:30', useNikud: true, expected: 'חָמֵשׁ וְחֵצִי אַחַר הַצָּהֳרַיִים' },
+  { input: '19:45', useNikud: true, expected: 'רֶבַע לְשְׁמוֹנֶה בָּעֶרֶב' },
+  { input: '23:50', useNikud: true, expected: 'עֲשָׂרָה לַחֲצוֹת' },
+  { input: '03:10', useNikud: false, expected: 'שלוש ועשרה בלילה' },
+  { input: '03:08', useNikud: true, expected: 'שָׁלוֹשׁ וְשְׁמוֹנֶה דַּקּוֹת בַּלַּיְלָה' },
 ];
 
 const startTime = performance.now();
 let failures = 0;
 
-for (const { input, expected } of cases) {
-  const actual = maHashaa(input);
-  // use reverseHebrew so the terminal shows Hebrew correctly
-  const visualActual = reverseHebrew(actual);
-  const visualExpected = reverseHebrew(expected);
+// Regular cases with explicit parameter
+for (const { input, useNikud, expected } of cases) {
+  const actual = maHashaa(input, useNikud);
   
-  if (actual === expected) {
-    console.log(`✅ ${input} -> "${visualActual}"`);
+  if (actual.normalize('NFC') === expected.normalize('NFC')) {
+    console.log(`✅ ${input} (${useNikud ? 'מנוקד' : 'נקי'}) -> "${reverseHebrew(actual)}"`);
   } else {
-    console.log(`❌ ${input} -> "${visualActual}" (expected "${visualExpected}")`);
+    console.log(`❌ ${input} (${useNikud ? 'מנוקד' : 'נקי'}) -> "${reverseHebrew(actual)}" (expected "${reverseHebrew(expected)}")`);
     failures++;
   }
 }
 
-// Final verification for Nikud
-console.log('\nChecking Nikud support...');
-const nikudResult = maHashaa('03:08', true);
-const expectedNikud = 'שָׁלוֹשׁ וְשְׁמוֹנֶה דַּקּוֹת בַּלַּיְלָה';
-
-if (nikudResult.normalize('NFC') === expectedNikud.normalize('NFC')) {
-  console.log(`✅ Nikud support works: "${reverseHebrew(nikudResult)}"`);
+// Special case for default parameter (should be useNikud: true)
+console.log('\nChecking default parameter value...');
+const defaultInput = '10:15';
+const defaultExpected = 'עֶשֶׂר וָרֶבַע בַּבּוֹקֶר';
+const defaultActual = maHashaa(defaultInput);
+if (defaultActual.normalize('NFC') === defaultExpected.normalize('NFC')) {
+  console.log(`✅ Default parameter (useNikud: true) works: "${reverseHebrew(defaultActual)}"`);
 } else {
-  console.log(`❌ Nikud support failed: "${reverseHebrew(nikudResult)}" (expected "${reverseHebrew(expectedNikud)}")`);
+  console.log(`❌ Default parameter check failed: "${reverseHebrew(defaultActual)}" (expected "${reverseHebrew(defaultExpected)}")`);
   failures++;
 }
 
 const duration = (performance.now() - startTime).toFixed(2);
 
 if (failures > 0) {
-  console.log(`❌ [${duration}ms] ${failures} test case(s) failed.`);
+  console.log(`\n❌ [${duration}ms] ${failures} test case(s) failed.`);
   process.exit(1);
 } else {
-  console.log(`✅ [${duration}ms] All tests passed!`);
+  console.log(`\n✅ [${duration}ms] All tests passed!`);
 }

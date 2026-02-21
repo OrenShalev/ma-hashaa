@@ -1,9 +1,8 @@
 #!/usr/bin/env node
-import maHashaa from './index.js';
+import maHashaa, { reverseHebrew } from './index.js';
 
-function reverseHebrew(text: string): string {
-  return text.split('').reverse().join('').replace(/([\u0591-\u05C7]+)(.)/g, '$2$1');
-}
+const args = process.argv.slice(2);
+const noNikud = args.includes('--no-nikud');
+const timeInput = args.find(arg => !arg.startsWith('--'));
 
-const input = process.argv[2];
-console.log(reverseHebrew(maHashaa(input)));
+console.log(reverseHebrew(maHashaa(timeInput, !noNikud)));

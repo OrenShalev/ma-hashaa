@@ -1,7 +1,7 @@
 /**
  * Returns the current time in words.
  */
-export default function maHashaa(timeStr?: string, useNikud: boolean = false): string {
+export default function maHashaa(timeStr?: string, useNikud: boolean = true): string {
   let hours: number;
   let minutes: number;
 
@@ -56,12 +56,28 @@ export default function maHashaa(timeStr?: string, useNikud: boolean = false): s
     result = `${hourName} ${getMinutesDigital(minutes)}`;
   }
 
-  const finalResult = result + suffix;
-  return useNikud ? finalResult : stripNikud(finalResult);
+  const finalResult = (result + suffix).normalize('NFC');
+  
+  // Hebrew grammar fix: 'vav' and 'lamed' take the vowel of the following hataf-patah
+  const corrected = finalResult
+    .replace(/וְעֲ/g, 'וַעֲ')
+    .replace(/וְחֲ/g, 'וַחֲ')
+    .replace(/לְחֲ/g, 'לַחֲ');
+    
+  return useNikud ? corrected : stripNikud(corrected);
 }
 
 function stripNikud(text: string): string {
   return text.replace(/[\u0591-\u05C7]/g, "");
+}
+
+/**
+ * Reverses a Hebrew string while keeping nikud (diacritics) attached to their letters.
+ */
+export function reverseHebrew(text: string): string {
+  // Reverse the entire string, then move any sequence of nikud characters
+  // (U+0591-U+05C7) to follow the character they were originally attached to.
+  return text.split('').reverse().join('').replace(/([\u0591-\u05C7]+)(.)/g, '$2$1');
 }
 
 function getDaySuffix(h: number): string {
