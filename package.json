@@ -1,11 +1,12 @@
 {
   "name": "ma-hashaa",
-  "version": "1.0.0",
-  "description": "Returns the current time in words",
+  "version": "0.0.1",
+  "description": "Returns the current time or a given time in Hebrew words",
   "type": "module",
   "main": "./dist/index.js",
-  "bin": {
-    "ma-hashaa": "./dist/bin.js"
+  "bin": "./dist/bin.js",
+  "publishConfig": {
+    "registry": "https://registry.npmjs.org"
   },
   "files": [
     "dist"
@@ -20,6 +21,14 @@
   },
   "author": "Oren Shalev <shalev.oren@gmail.com>",
   "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/orenshalev/ma-hashaa.git"
+  },
+  "bugs": {
+    "url": "https://github.com/orenshalev/ma-hashaa/issues"
+  },
+  "homepage": "https://github.com/orenshalev/ma-hashaa#readme",
   "devDependencies": {
     "@types/node": "^25.3.0",
     "tsx": "^4.0.0",
